@@ -167,11 +167,37 @@ body{
   transition:border-color .15s,transform .1s;
 }
 .food:active{transform:scale(.98)}
+
+/* artwork layers: emoji sits underneath, the photo covers it when present.
+   The card is the query container so the glyph scales with the card, not the
+   viewport — keeps the same optical size at 2, 3 and 4 columns. */
+.food{container-type:inline-size}
+.food-emoji{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30cqw;
+  line-height:1;
+  transform:translateY(-9%);
+  user-select:none;
+}
+.food-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+}
+
 .food::after{
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(to bottom,rgba(255,255,255,0),#000);
+  background:linear-gradient(to bottom,rgba(255,255,255,0) 30%,rgba(0,0,0,.55));
 }
 /* fixed 22px line box (Figma) so the name sits identically in every
    category and in both languages — Korean glyphs otherwise run 24px tall

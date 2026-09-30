@@ -88,9 +88,29 @@ function renderTags(){
   }).join('');
 }
 
+/* ---- card artwork ----
+   Drop a file into img/<slug>.webp and add its slug to IMAGES.
+   Cards NOT listed here render the emoji instead, so a missing file never
+   produces a 404 or a broken-image box. */
+const EMOJI = {
+  '새우':'🦐','게':'🦀','전복':'🐚','오징어':'🦑','연어 알':'🟠','연어':'🍣',
+  '고등어':'🐠','참치':'🍙',
+  '소고기':'🥩','돼지고기':'🥓','양고기':'🍖','닭고기':'🍗','오리고기':'🦆',
+  '밀':'🌾','메밀':'🌾','보리':'🌾','쌀':'🍚','현미':'🍚','옥수수':'🌽','참깨':'🫘',
+  '아몬드':'🌰','땅콩':'🥜','호두':'🌰','캐슈넛':'🌰','대두':'🫘','완두콩':'🫛',
+  '사과':'🍎','배':'🍐','딸기':'🍓','포도':'🍇','복숭아':'🍑','키위':'🥝','오렌지':'🍊','바나나':'🍌',
+  '우유':'🥛','치즈':'🧀','요거트':'🥣','버터':'🧈','생크림':'🍮','계란':'🥚','마요네즈':'🧴'
+};
+const IMAGES = [];   // e.g. ['shrimp','crab','abalone']
+const slugOf  = en => en.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const hasImg  = en => IMAGES.indexOf(slugOf(en)) !== -1;
+
 function renderGrid(){
   $('#grid').innerHTML = FOODS[cat].items.map(it =>
-    `<button class="food${picked.has(it[0])?' on':''}" data-food="${it[0]}"><b>${nameOf(it)}</b></button>`
+    `<button class="food${picked.has(it[0])?' on':''}" data-food="${it[0]}">` +
+      `<span class="food-emoji" aria-hidden="true">${EMOJI[it[0]] || '🍽'}</span>` +
+      (hasImg(it[1]) ? `<img class="food-img" src="img/${slugOf(it[1])}.webp" alt="" loading="lazy" decoding="async">` : '') +
+      `<b>${nameOf(it)}</b></button>`
   ).join('');
   renderBar();
 }
@@ -155,6 +175,13 @@ $('#grid').addEventListener('click', e => {
   renderTags();
   renderGrid();
 });
+
+/* Belt-and-braces: image load errors do not bubble, so listen in the capture
+   phase. If a listed file goes missing the emoji layer shows through. */
+$('#grid').addEventListener('error', e => {
+  const img = e.target.closest && e.target.closest('.food-img');
+  if (img) img.remove();
+}, true);
 
 $('#clear').addEventListener('click', () => {
   picked.clear();
