@@ -288,6 +288,12 @@ body{
   border-radius:var(--r-card);
   padding:38px 18px 22px;
   text-align:center;
+  /* long allergen lists must never push the buttons off screen */
+  display:flex;
+  flex-direction:column;
+  max-height:calc(100vh - 40px);
+  max-height:calc(100dvh - 40px);
+  overflow:hidden;
 }
 .modal-sm{max-width:250px}
 
@@ -312,8 +318,21 @@ body{
   font-weight:700;
   line-height:1.4;
   margin-bottom:26px;
+  flex:0 0 auto;
 }
 .modal-title.sm{font-size:16px;margin-bottom:20px}
+
+/* only the allergen list scrolls; the confirm buttons stay pinned */
+.result-list{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+.result-list::-webkit-scrollbar{width:5px}
+.result-list::-webkit-scrollbar-thumb{background:#DCDCE1;border-radius:3px}
+.result-list::-webkit-scrollbar-track{background:transparent}
 
 .result-list,.lang-list{list-style:none}
 .result-list li,.lang-list li{
@@ -366,7 +385,12 @@ body{
   flex-direction:column;
   gap:12px;
   margin-top:24px;
+  flex:0 0 auto;
 }
+/* .btn{flex:1} is meant for the ROW .bottombar. Inside the COLUMN
+   .modal-actions a flex-basis resizes the button's HEIGHT, which squashes
+   or inflates it — so opt modal buttons out of flex sizing entirely. */
+.modal .btn{ flex:0 0 auto; width:100%; }
 
 /* =========================================================
    Desktop refinements — declared last so they win over the
@@ -382,20 +406,48 @@ body{
   .grid{ gap:16px 14px; padding:24px 0; }
   .food b{ font-size:17px; }
 
-  /* keep the action bar from turning into one absurdly wide button */
+  /* keep the action bar from turning into one absurdly wide button.
+     Scoped to .bottombar: inside .modal-actions (a COLUMN flex container)
+     a flex-basis would resize the button's HEIGHT, not its width. */
   .bottombar{ padding:16px 0 20px; }
   .clear{ height:40px; font-size:14px; padding:0 16px; }
   .count{ height:40px; min-width:40px; font-size:16px; line-height:40px; }
-  .btn{ flex:0 0 240px; height:60px; font-size:21px; }
+  .bottombar .btn{ flex:0 0 240px; height:60px; font-size:21px; }
+  .modal .btn{ height:56px; font-size:19px; }
 
-  .modal{ max-width:440px; padding:46px 26px 28px; }
-  .modal-sm{ max-width:340px; }
-  .modal-title{ font-size:26px; margin-bottom:30px; }
-  .modal-actions{ margin-top:30px; }
-  .result-list li{ height:62px; font-size:20px; gap:12px; }
-  .result-list li b{ font-size:20px; }
-  .result-list li em{ font-size:20px; }
-  .result-list li span{ font-size:17px; }
-  .result-list li.res-group{ font-size:14px; margin:22px 0 10px; }
-  .lang-list li{ height:58px; font-size:15px; }
+  /* result modal: wide + multi-column, so 40+ allergens stay compact */
+  .modal:not(.modal-sm){ max-width:560px; padding:44px 28px 28px; }
+  .modal-title{ font-size:26px; margin-bottom:26px; }
+  .modal-actions{ margin-top:26px; }
+  .result-list{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px 12px;
+  }
+  .result-list li + li:not(.res-group){ margin-top:0; }
+  .result-list li{ height:58px; font-size:19px; gap:10px; }
+  .result-list li b{ font-size:19px; }
+  .result-list li em{ font-size:19px; }
+  .result-list li span{ font-size:16px; }
+  .result-list li.res-group{
+    grid-column:1 / -1;
+    font-size:14px;
+    margin:12px 0 0;
+  }
+  .result-list li.res-group:first-child{margin-top:0}
+
+  /* language modal: 2 short options only — keep it compact */
+  .modal-sm{ max-width:236px; padding:32px 18px 20px; }
+  .modal-sm .modal-title{ font-size:16px; margin-bottom:16px; }
+  .modal-sm .lang-list li{ height:46px; font-size:14px; }
+  .modal-sm .lang-list li + li{ margin-top:8px; }
+  .modal-sm .modal-actions{ margin-top:16px; }
+  .modal-sm .btn{ height:48px; font-size:16px; }
+}
+
+/* wide desktops: a third column keeps very long allergen lists from
+   turning into a marathon scroll */
+@media (min-width:1100px){
+  .modal:not(.modal-sm){ max-width:700px; }
+  .result-list{ grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
