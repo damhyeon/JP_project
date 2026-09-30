@@ -1,0 +1,15 @@
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS / Linux
+.DS_Store
+
+# editors
+.vscode/
+.idea/
+
+# dependencies / logs
+node_modules/
+*.log

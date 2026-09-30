@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOGU — 알레르기 확인</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <span class="logo">MOGU</span>
+    <button class="icon-btn" id="langOpen" aria-label="언어 설정">🌐</button>
+  </header>
+
+  <p class="subtitle" id="subtitle">해당 되는 알레르기 카드를 선택 해보세요!</p>
+
+  <nav class="tags" id="tags"></nav>
+
+  <main class="grid" id="grid"></main>
+
+  <footer class="bottombar">
+    <button class="clear" id="clear">전체 해제</button>
+    <span class="count" id="count">0</span>
+    <button class="btn btn-primary" id="done">완료</button>
+  </footer>
+
+</div>
+
+<!-- 결과 모달 -->
+<div class="overlay" id="result" hidden>
+  <div class="modal">
+    <button class="modal-close" data-close="result" aria-label="닫기">✕</button>
+    <h2 class="modal-title" id="resultTitle">選択した食品に以下のアレルギー成分があります</h2>
+    <ul class="result-list" id="resultList"></ul>
+    <div class="modal-actions">
+      <button class="btn btn-blue" id="ok">承知しました</button>
+      <button class="btn btn-red" id="ng">難しいと思われます</button>
+    </div>
+  </div>
+</div>
+
+<!-- 언어 모달 -->
+<div class="overlay" id="lang" hidden>
+  <div class="modal modal-sm">
+    <button class="modal-close" data-close="lang" aria-label="닫기">✕</button>
+    <h2 class="modal-title sm" id="langTitle">언어설정</h2>
+    <ul class="lang-list" id="langList"></ul>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="langOk" data-close="lang">확인</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

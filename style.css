@@ -1,0 +1,401 @@
+/* ===== Design tokens (extracted from Figma) ===== */
+:root{
+  --orange:#F77D45;
+  --orange-soft:#FFDECF;
+  --line-soft:#FFDFD0;
+  --ink:#000;
+  --card:#5B5B5B;
+  --line:#DFDFDF;
+  --blue:#457DF6;
+  --red:#F65045;
+  --dim:rgba(0,0,0,.65);
+  --shadow:0 4px 12px rgba(0,0,0,.2);
+  --r-card:20px;
+  --r-btn:12px;
+  --pad:20px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:"Apple SD Gothic Neo","Pretendard",-apple-system,"Noto Sans JP","Hiragino Sans",sans-serif;
+  background:#EFEFF1;
+  color:var(--ink);
+  display:flex;
+  justify-content:center;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Desktop-first panel. The grid below steps up to 3 then 4 columns so a wide
+   screen shows more food at once instead of stretching two oversized cards. */
+.app{
+  width:100%;
+  max-width:1000px;
+  min-height:100vh;
+  min-height:100dvh;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  padding:0 var(--pad);
+}
+
+@media (min-width:520px){
+  body{padding:28px 0}
+  .app{
+    min-height:auto;
+    height:calc(100vh - 56px);
+    max-height:940px;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+}
+
+/* roomier gutters, 3/4-column grid, bigger modal — see the desktop block
+   at the end of this file (it must come last to win over the base rules) */
+
+/* ===== Header ===== */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-top:24px;
+}
+.logo{
+  font-size:25px;
+  font-weight:800;
+  color:var(--orange);
+  letter-spacing:.5px;
+}
+.icon-btn{
+  border:0;
+  background:none;
+  font-size:20px;
+  line-height:1;
+  padding:6px;
+  cursor:pointer;
+  border-radius:8px;
+}
+.icon-btn:hover{background:#F4F4F5}
+
+.subtitle{
+  font-size:16px;
+  font-weight:600;
+  margin-top:10px;
+  color:#1A1A1A;
+}
+
+/* ===== Category tags (horizontal scroll) ===== */
+.tags{
+  display:flex;
+  gap:8px;
+  margin-top:18px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tags::-webkit-scrollbar{display:none}
+
+.tag{
+  flex:0 0 auto;
+  padding:7px 13px;
+  border-radius:50px;
+  border:1px solid var(--orange);
+  background:#fff;
+  color:var(--orange);
+  font-size:14px;
+  font-weight:600;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.tag:hover{background:var(--orange-soft)}
+.tag.on{
+  background:var(--orange);
+  color:#fff;
+  border-color:var(--orange);
+}
+
+/* per-category selection counter */
+.tag i{
+  display:inline-block;
+  min-width:18px;
+  margin-left:6px;
+  padding:0 5px;
+  border-radius:50px;
+  background:var(--orange);
+  color:#fff;
+  font-size:11px;
+  font-style:normal;
+  font-weight:700;
+  line-height:18px;
+  text-align:center;
+  vertical-align:1px;
+}
+.tag.on i{background:#fff;color:var(--orange)}
+
+/* ===== Food grid ===== */
+.grid{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px 12px;
+  padding:20px 0;
+  align-content:start;
+}
+
+/* desktop: more food per screen, cards stay large enough to breathe */
+@media (min-width:640px){
+  .grid{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (min-width:900px){
+  .grid{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+
+.food{
+  position:relative;
+  aspect-ratio:166/121;
+  border:2px solid transparent;
+  border-radius:var(--r-card);
+  background:var(--card);
+  overflow:hidden;
+  cursor:pointer;
+  padding:0;
+  transition:border-color .15s,transform .1s;
+}
+.food:active{transform:scale(.98)}
+.food::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,0),#000);
+}
+/* fixed 22px line box (Figma) so the name sits identically in every
+   category and in both languages — Korean glyphs otherwise run 24px tall
+   and drop the label a line lower than Latin text.
+   10px/14px (not 12/16) because the 2px card border is inside these offsets. */
+.food b{
+  position:absolute;
+  z-index:1;
+  left:14px;
+  right:14px;
+  bottom:10px;
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  line-height:22px;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.food.on{border-color:var(--orange)}
+.food.on::before{
+  content:"✓";
+  position:absolute;
+  z-index:2;
+  top:8px;
+  right:8px;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:var(--orange);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  line-height:24px;
+  text-align:center;
+}
+
+/* ===== Bottom bar ===== */
+.bottombar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 0 22px;
+  border-top:1px solid var(--line);
+  background:#fff;
+}
+.clear{
+  flex:0 0 auto;
+  height:34px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:50px;
+  background:#fff;
+  color:#8A8A90;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:opacity .15s,color .15s,border-color .15s;
+}
+.clear:not(:disabled):hover{border-color:var(--orange);color:var(--orange)}
+.clear:disabled{opacity:.4;cursor:default}
+.count{
+  flex:0 0 auto;
+  min-width:34px;
+  height:34px;
+  padding:0 9px;
+  border-radius:50px;
+  background:var(--orange-soft);
+  color:var(--orange);
+  font-size:15px;
+  font-weight:700;
+  line-height:34px;
+  text-align:center;
+}
+.btn{
+  flex:1;
+  height:56px;
+  border:0;
+  border-radius:var(--r-btn);
+  color:#fff;
+  font-family:inherit;
+  font-size:20px;
+  font-weight:700;
+  cursor:pointer;
+  transition:filter .15s,transform .1s;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--orange)}
+.btn-blue{background:var(--blue)}
+.btn-red{background:var(--red)}
+
+/* ===== Overlays & modals ===== */
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:10;
+  background:var(--dim);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.overlay[hidden]{display:none}
+
+.modal{
+  position:relative;
+  width:100%;
+  max-width:339px;
+  background:#fff;
+  border-radius:var(--r-card);
+  padding:38px 18px 22px;
+  text-align:center;
+}
+.modal-sm{max-width:250px}
+
+.modal-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:35px;
+  height:35px;
+  border:1px solid var(--line-soft);
+  border-radius:50%;
+  background:#fff;
+  color:var(--orange);
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+}
+.modal-close:hover{background:var(--orange-soft)}
+
+.modal-title{
+  font-size:22px;
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:26px;
+}
+.modal-title.sm{font-size:16px;margin-bottom:20px}
+
+.result-list,.lang-list{list-style:none}
+.result-list li,.lang-list li{
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:12px;
+  font-size:18px;
+  font-weight:700;
+  color:var(--orange);
+}
+.result-list li + li:not(.res-group),.lang-list li + li{margin-top:10px}
+
+/* one selected food -> its allergen, both in Japanese */
+.result-list li{
+  gap:10px;
+  font-size:18px;
+  color:var(--ink);
+}
+.result-list li b{font-size:18px;font-weight:700}
+.result-list li span{color:#B9B9BE;font-size:15px}
+.result-list li em{
+  font-style:normal;
+  font-weight:700;
+  color:var(--orange);
+}
+
+/* Japanese category header inside the result */
+.result-list li.res-group{
+  height:auto;
+  margin:18px 0 8px;
+  justify-content:flex-start;
+  padding-left:4px;
+  border:0;
+  border-radius:0;
+  font-size:13px;
+  font-weight:700;
+  color:#9A9AA0;
+  letter-spacing:.4px;
+}
+.result-list li.res-group:first-child{margin-top:0}
+
+.lang-list li{font-size:14px;font-weight:400;color:var(--ink)}
+.lang-list li.on{background:var(--orange-soft);border-color:var(--line-soft);color:var(--orange);font-weight:600}
+
+.modal-actions{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:24px;
+}
+
+/* =========================================================
+   Desktop refinements — declared last so they win over the
+   phone-sized base rules above.
+   ========================================================= */
+@media (min-width:760px){
+  .app{ --pad:32px; padding-left:32px; padding-right:32px; }
+  .topbar{ padding-top:30px; }
+  .logo{ font-size:28px; }
+  .subtitle{ font-size:17px; margin-top:12px; }
+  .tags{ margin-top:22px; padding-bottom:18px; }
+  .tag{ font-size:15px; padding:8px 16px; }
+  .grid{ gap:16px 14px; padding:24px 0; }
+  .food b{ font-size:17px; }
+
+  /* keep the action bar from turning into one absurdly wide button */
+  .bottombar{ padding:16px 0 20px; }
+  .clear{ height:40px; font-size:14px; padding:0 16px; }
+  .count{ height:40px; min-width:40px; font-size:16px; line-height:40px; }
+  .btn{ flex:0 0 240px; height:60px; font-size:21px; }
+
+  .modal{ max-width:440px; padding:46px 26px 28px; }
+  .modal-sm{ max-width:340px; }
+  .modal-title{ font-size:26px; margin-bottom:30px; }
+  .modal-actions{ margin-top:30px; }
+  .result-list li{ height:62px; font-size:20px; gap:12px; }
+  .result-list li b{ font-size:20px; }
+  .result-list li em{ font-size:20px; }
+  .result-list li span{ font-size:17px; }
+  .result-list li.res-group{ font-size:14px; margin:22px 0 10px; }
+  .lang-list li{ height:58px; font-size:15px; }
+}
