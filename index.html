@@ -29,15 +29,28 @@
 
 </div>
 
-<!-- 결과 모달 -->
+<!-- 결과 모달 — 일본어. 직원이 읽고 마지막 판단을 내린다 -->
 <div class="overlay" id="result" hidden>
   <div class="modal">
     <button class="modal-close" data-close="result" aria-label="닫기">✕</button>
     <h2 class="modal-title" id="resultTitle">選択した食品に以下のアレルギー成分があります</h2>
     <ul class="result-list" id="resultList"></ul>
+    <p class="modal-ask" id="resultAsk">このアレルギー成分を除くことはできますか？</p>
     <div class="modal-actions">
       <button class="btn btn-blue" id="ok">承知しました</button>
       <button class="btn btn-red" id="ng">難しいと思われます</button>
+    </div>
+  </div>
+</div>
+
+<!-- 판정 모달 — 사용자 언어. 직원의 답을 사용자가 이해한다 -->
+<div class="overlay" id="verdict" hidden>
+  <div class="modal modal-sm verdict" id="verdictCard">
+    <div class="verdict-mark" id="verdictMark" aria-hidden="true">✓</div>
+    <h2 class="modal-title" id="verdictTitle"></h2>
+    <p class="verdict-sub" id="verdictSub"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="verdictOk" data-close="verdict">확인</button>
     </div>
   </div>
 </div>

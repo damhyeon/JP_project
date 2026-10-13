@@ -50,22 +50,28 @@ const T = {
   '한국어':{
     sub:'알레르기가 있는 식품을 모두 선택해 주세요', done:'완료',
     clear:'전체 해제', langTitle:'언어설정', langOk:'확인', close:'닫기',
-    sel:n=>`${n}개 선택`
+    sel:n=>`${n}개 선택`,
+    vOk:'알겠습니다', vOkSub:'이 알레르기 유발 식품을 제외할 수 있습니다',
+    vNg:'어려울 것 같습니다', vNgSub:'이 알레르기 유발 식품을 제외하기 어렵습니다',
+    vClose:'확인'
   },
   'English':{
     sub:'Tick every food you are allergic to', done:'Done',
     clear:'Clear all', langTitle:'Language', langOk:'Confirm', close:'Close',
-    sel:n=>`${n} selected`
+    sel:n=>`${n} selected`,
+    vOk:'Understood', vOkSub:'These allergens can be left out of your dish',
+    vNg:'It seems difficult', vNgSub:'These allergens cannot be left out of your dish',
+    vClose:'OK'
   }
 };
 
 /* the result card is always Japanese — a Japanese person reads it */
 const JA = {
   hit:'選択した食品に以下のアレルギー成分があります',
-  none:'アレルギー成分はありません',
+  none:'選択した食品にアレルギー成分はありません',
+  ask:'このアレルギー成分を除くことはできますか？',
   ok:'承知しました',
-  ng:'難しいと思われます',
-  clear:'選択をすべて解除しました'
+  ng:'難しいと思われます'
 };
 
 const $ = s => document.querySelector(s);
@@ -75,6 +81,11 @@ const CATNAME = { '한국어':'ko', 'English':'en' };
 let cat = 'seafood';
 let lang = '한국어';
 const picked = new Set();
+/* the restaurant staff's answer: null | 'ok' | 'ng'.
+   It colours the allergen cards and must reset whenever the selection
+   changes, because a new selection is a new question. */
+let verdict = null;
+let resultHasAllergen = false;
 
 const nameOf = item => item[UI[lang]];
 const catOf  = c => c[CATNAME[lang]];
@@ -107,12 +118,21 @@ const hasImg  = en => IMAGES.indexOf(slugOf(en)) !== -1;
 
 function renderGrid(){
   $('#grid').innerHTML = FOODS[cat].items.map(it =>
-    `<button class="food${picked.has(it[0])?' on':''}" data-food="${it[0]}">` +
+    `<button class="food${picked.has(it[0])?' on':''}${it[3]?' has-al':''}" data-food="${it[0]}">` +
       `<span class="food-emoji" aria-hidden="true">${EMOJI[it[0]] || '🍽'}</span>` +
       (hasImg(it[1]) ? `<img class="food-img" src="img/${slugOf(it[1])}.webp" alt="" loading="lazy" decoding="async">` : '') +
       `<b>${nameOf(it)}</b></button>`
   ).join('');
   renderBar();
+}
+
+/* Only cards that actually carry an allergen are colour-coded: those are the
+   ones the staff was asked about. A food with no allergen entry (e.g. salmon)
+   was never part of the question, so tinting it would mislead. */
+function setVerdict(v){
+  verdict = v;
+  const app = document.querySelector('.app');
+  if (v) app.dataset.verdict = v; else delete app.dataset.verdict;
 }
 
 function renderBar(){
@@ -137,25 +157,45 @@ function applyLang(){
   renderTags();
   renderGrid();
   renderLangList();
+  /* keep an open verdict modal in sync when the language is switched */
+  if (verdict && !$('#verdict').hidden) showVerdict(verdict);
 }
 
-/* ---- result: Japanese only ---- */
+/* ---- result: Japanese only, read by the restaurant staff ---- */
 function showResult(){
   const groups = Object.keys(FOODS)
     .map(k => ({ ja: FOODS[k].ja, rows: FOODS[k].items.filter(it => picked.has(it[0])) }))
     .filter(g => g.rows.length);
 
-  const has = groups.some(g => g.rows.some(r => r[3]));
+  resultHasAllergen = groups.some(g => g.rows.some(r => r[3]));
 
-  $('#resultTitle').textContent = has ? JA.hit : JA.none;
+  $('#resultTitle').textContent = resultHasAllergen ? JA.hit : JA.none;
   $('#resultList').innerHTML = groups.map(g =>
     `<li class="res-group">${g.ja}</li>` +
     g.rows.map(r => `<li><b>${r[2]}</b>${r[3] ? `<span>→</span><em>${r[3]}</em>` : ''}</li>`).join('')
   ).join('');
 
+  /* nothing to ask when no allergen was found — show a plain acknowledgement */
+  $('#resultAsk').textContent = resultHasAllergen ? JA.ask : '';
+  $('#resultAsk').hidden = !resultHasAllergen;
+  $('#ng').hidden = !resultHasAllergen;
+
   $('#ok').textContent = JA.ok;
   $('#ng').textContent = JA.ng;
   $('#result').hidden = false;
+}
+
+/* ---- verdict: the staff's answer, told back to the user in THEIR language ---- */
+function showVerdict(kind){
+  const t = T[lang];
+  const card = $('#verdictCard');
+  card.classList.toggle('is-ok', kind === 'ok');
+  card.classList.toggle('is-ng', kind === 'ng');
+  $('#verdictMark').textContent = kind === 'ok' ? '✓' : '!';
+  $('#verdictTitle').textContent = kind === 'ok' ? t.vOk : t.vNg;
+  $('#verdictSub').textContent   = kind === 'ok' ? t.vOkSub : t.vNgSub;
+  $('#verdictOk').textContent    = t.vClose;
+  $('#verdict').hidden = false;
 }
 
 /* ---- actions ---- */
@@ -172,6 +212,7 @@ $('#grid').addEventListener('click', e => {
   if (!b) return;
   const n = b.dataset.food;
   picked.has(n) ? picked.delete(n) : picked.add(n);
+  setVerdict(null);          // a new selection invalidates the staff's answer
   renderTags();
   renderGrid();
 });
@@ -185,6 +226,7 @@ $('#grid').addEventListener('error', e => {
 
 $('#clear').addEventListener('click', () => {
   picked.clear();
+  setVerdict(null);
   renderTags();
   renderGrid();
 });
@@ -200,11 +242,19 @@ $('#langList').addEventListener('click', e => {
   applyLang();
 });
 
+/* the two staff buttons no longer wipe the selection — the coloured cards are
+   the user's takeaway, so the list has to survive */
 $('#ok').addEventListener('click', () => {
   $('#result').hidden = true;
-  picked.clear();
-  renderTags();
-  renderGrid();
+  if (!resultHasAllergen) return;      // plain acknowledgement, nothing to decide
+  setVerdict('ok');
+  showVerdict('ok');
+});
+
+$('#ng').addEventListener('click', () => {
+  $('#result').hidden = true;
+  setVerdict('ng');
+  showVerdict('ng');
 });
 
 document.addEventListener('click', e => {
