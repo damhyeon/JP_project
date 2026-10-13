@@ -380,31 +380,14 @@ body{
    One white card that changes in place: a Japanese question over an orange
    list, then — once a button is pressed — the answer in the user's language
    with the list recoloured blue (ok) or red (ng). */
-.card-modal{padding:0 0 26px}
+.card-modal{padding:34px 0 26px}
 .card-modal .modal-title{
-  margin:40px 0 30px;
+  margin:0 0 30px;
   padding:0 26px;
   font-size:22px;
   font-weight:700;
   line-height:1.4;
 }
-/* swipe-handle style close button, top-centred like the Figma card */
-.card-handle{
-  flex:0 0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:35px;
-  height:35px;
-  margin:16px auto 0;
-  padding:0;
-  border:1px solid var(--line-soft);
-  border-radius:50%;
-  background:#fff;
-  color:var(--orange);
-  cursor:pointer;
-}
-.card-handle:hover{background:var(--orange-soft)}
 
 /* full-bleed rows divided by hairlines, centred Japanese names */
 .card-modal .result-list li{

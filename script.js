@@ -142,7 +142,7 @@ function applyLang(){
   $('#langOk').textContent = t.langOk;
   $('#langTitle').textContent = t.langTitle;
   document.title = 'MOGU — ' + t.sub;
-  document.querySelectorAll('.modal-close,.card-handle')
+  document.querySelectorAll('.modal-close')
     .forEach(b => b.setAttribute('aria-label', t.close));
   renderTags();
   renderGrid();
