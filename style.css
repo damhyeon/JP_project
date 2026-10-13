@@ -210,17 +210,6 @@ body{
   text-shadow:0 1px 3px rgba(0,0,0,.45);
 }
 
-/* The staff's answer colour-codes the allergen cards the user picked:
-   blue = they can leave it out, red = they cannot. Only .has-al cards are
-   tinted, because a food with no allergen entry was never asked about.
-   Label / border / tick are tinted together so the state reads as one unit;
-   the label uses a lighter step because it sits on the dark scrim. */
-.app[data-verdict="ok"] .food.on.has-al{border-color:var(--blue)}
-.app[data-verdict="ok"] .food.on.has-al b{color:#9CC2FF}
-.app[data-verdict="ok"] .food.on.has-al::before{background:var(--blue)}
-.app[data-verdict="ng"] .food.on.has-al{border-color:var(--red)}
-.app[data-verdict="ng"] .food.on.has-al b{color:#FF9A90}
-.app[data-verdict="ng"] .food.on.has-al::before{background:var(--red)}
 .food.on{border-color:var(--orange)}
 .food.on::before{
   content:"✓";
@@ -351,7 +340,7 @@ body{
 }
 .modal-title.sm{font-size:16px;margin-bottom:20px}
 
-/* only the allergen list scrolls; the confirm buttons stay pinned */
+/* only the list scrolls; the buttons stay pinned */
 .result-list{
   flex:1 1 auto;
   min-height:0;
@@ -364,50 +353,21 @@ body{
 .result-list::-webkit-scrollbar-track{background:transparent}
 
 .result-list,.lang-list{list-style:none}
-.result-list li,.lang-list li{
+
+/* language options */
+.lang-list li{
   height:54px;
   display:flex;
   align-items:center;
   justify-content:center;
   border:1px solid var(--line);
   border-radius:12px;
-  font-size:18px;
-  font-weight:700;
-  color:var(--orange);
-}
-.result-list li + li:not(.res-group),.lang-list li + li{margin-top:10px}
-
-/* one selected food -> its allergen, both in Japanese */
-.result-list li{
-  gap:10px;
-  font-size:18px;
+  font-size:14px;
+  font-weight:600;
   color:var(--ink);
 }
-.result-list li b{font-size:18px;font-weight:700}
-.result-list li span{color:#B9B9BE;font-size:15px}
-.result-list li em{
-  font-style:normal;
-  font-weight:700;
-  color:var(--orange);
-}
-
-/* Japanese category header inside the result */
-.result-list li.res-group{
-  height:auto;
-  margin:18px 0 8px;
-  justify-content:flex-start;
-  padding-left:4px;
-  border:0;
-  border-radius:0;
-  font-size:13px;
-  font-weight:700;
-  color:#9A9AA0;
-  letter-spacing:.4px;
-}
-.result-list li.res-group:first-child{margin-top:0}
-
-.lang-list li{font-size:14px;font-weight:400;color:var(--ink)}
-.lang-list li.on{background:var(--orange-soft);border-color:var(--line-soft);color:var(--orange);font-weight:600}
+.lang-list li + li{margin-top:10px}
+.lang-list li.on{background:var(--orange-soft);border-color:var(--line-soft);color:var(--orange)}
 
 .modal-actions{
   display:flex;
@@ -416,36 +376,60 @@ body{
   margin-top:24px;
   flex:0 0 auto;
 }
-/* the Japanese question the staff is answering — pinned under the list */
-.modal-ask{
+/* ===== Result card = the staff's card (Figma 카드 / 카드수락 / 카드거절) =====
+   One white card that changes in place: a Japanese question over an orange
+   list, then — once a button is pressed — the answer in the user's language
+   with the list recoloured blue (ok) or red (ng). */
+.card-modal{padding:0 0 26px}
+.card-modal .modal-title{
+  margin:40px 0 30px;
+  padding:0 26px;
+  font-size:22px;
+  font-weight:700;
+  line-height:1.4;
+}
+/* swipe-handle style close button, top-centred like the Figma card */
+.card-handle{
   flex:0 0 auto;
-  margin:16px 0 0;
-  color:var(--dim);
-  font-size:15px;
-  font-weight:600;
-  line-height:1.5;
-}
-.modal-ask[hidden]{display:none}
-
-/* verdict modal: the staff's answer, read back in the user's own language */
-.verdict{padding:34px 22px 22px}
-.verdict-mark{
-  width:58px;height:58px;
-  margin:0 auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:35px;
+  height:35px;
+  margin:16px auto 0;
+  padding:0;
+  border:1px solid var(--line-soft);
   border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:30px;font-weight:800;line-height:1;
+  background:#fff;
+  color:var(--orange);
+  cursor:pointer;
 }
-.verdict.is-ok .verdict-mark{background:var(--blue)}
-.verdict.is-ng .verdict-mark{background:var(--red)}
-.verdict.is-ok .modal-title{color:var(--blue)}
-.verdict.is-ng .modal-title{color:var(--red)}
-.verdict .modal-title{font-size:24px;margin-bottom:12px}
-.verdict-sub{
-  color:var(--dim);
-  font-size:15px;
-  line-height:1.55;
-  word-break:keep-all;
+.card-handle:hover{background:var(--orange-soft)}
+
+/* full-bleed rows divided by hairlines, centred Japanese names */
+.card-modal .result-list li{
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-top:1px solid var(--line);
+  font-size:18px;
+  font-weight:700;
+  color:var(--orange);
+}
+.card-modal .result-list li:last-child{border-bottom:1px solid var(--line)}
+.card-modal.is-ok .result-list li{color:var(--blue)}
+.card-modal.is-ng .result-list li{color:var(--red)}
+
+.card-modal .modal-actions{
+  margin-top:38px;
+  padding:0 28px;
+  gap:12px;
+}
+.card-modal .modal-actions .btn{
+  height:64px;
+  font-size:20px;
+  border-radius:12px;
 }
 /* .btn{flex:1} is meant for the ROW .bottombar. Inside the COLUMN
    .modal-actions a flex-basis resizes the button's HEIGHT, which squashes
@@ -473,28 +457,6 @@ body{
   .clear{ height:40px; font-size:14px; padding:0 16px; }
   .count{ height:40px; min-width:40px; font-size:16px; line-height:40px; }
   .bottombar .btn{ flex:0 0 240px; height:60px; font-size:21px; }
-  .modal .btn{ height:56px; font-size:19px; }
-
-  /* result modal: wide + multi-column, so 40+ allergens stay compact */
-  .modal:not(.modal-sm){ max-width:560px; padding:44px 28px 28px; }
-  .modal-title{ font-size:26px; margin-bottom:26px; }
-  .modal-actions{ margin-top:26px; }
-  .result-list{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px 12px;
-  }
-  .result-list li + li:not(.res-group){ margin-top:0; }
-  .result-list li{ height:58px; font-size:19px; gap:10px; }
-  .result-list li b{ font-size:19px; }
-  .result-list li em{ font-size:19px; }
-  .result-list li span{ font-size:16px; }
-  .result-list li.res-group{
-    grid-column:1 / -1;
-    font-size:14px;
-    margin:12px 0 0;
-  }
-  .result-list li.res-group:first-child{margin-top:0}
 
   /* language modal: 2 short options only — keep it compact */
   .modal-sm{ max-width:236px; padding:32px 18px 20px; }
@@ -503,17 +465,4 @@ body{
   .modal-sm .lang-list li + li{ margin-top:8px; }
   .modal-sm .modal-actions{ margin-top:16px; }
   .modal-sm .btn{ height:48px; font-size:16px; }
-
-  /* the verdict sentence is a full line of text, so it needs more room
-     than the two-word language picker */
-  .modal-sm.verdict{ max-width:360px; padding:38px 28px 26px; }
-  .verdict .modal-title{ font-size:24px; margin-bottom:12px; }
-  .modal-sm.verdict .btn{ height:54px; font-size:18px; }
-}
-
-/* wide desktops: a third column keeps very long allergen lists from
-   turning into a marathon scroll */
-@media (min-width:1100px){
-  .modal:not(.modal-sm){ max-width:700px; }
-  .result-list{ grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
